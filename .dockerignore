@@ -1,0 +1,8 @@
+**/bin/
+**/obj/
+.git/
+.gitignore
+.github/
+**/*.user
+README.md
+docker-compose.yml
