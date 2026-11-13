@@ -114,8 +114,12 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
+// Skipped under the "Testing" environment: PayDeskWebApplicationFactory swaps in a
+// SQLite connection and owns its own schema creation/seeding instead, since these
+// SQL Server migrations are not meant to run against SQLite.
+if (!app.Environment.IsEnvironment("Testing"))
 {
+    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<PayDeskDbContext>();
     db.Database.Migrate();
     await SeedData.SeedAsync(db);
