@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PayDesk.Api.Data;
+using PayDesk.Api.Domain.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,10 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<PayDeskDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("PayDeskDb")));
+
+builder.Services.AddSingleton<IOvertimeCalculator, OvertimeCalculator>();
+builder.Services.AddSingleton<IProgressiveTaxCalculator, ProgressiveTaxCalculator>();
+builder.Services.AddScoped<IPayrollProcessingService, PayrollProcessingService>();
 
 var app = builder.Build();
 
