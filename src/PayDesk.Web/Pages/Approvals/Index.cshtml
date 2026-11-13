@@ -1,0 +1,56 @@
+@page
+@model PayDesk.Web.Pages.Approvals.IndexModel
+@{
+    ViewData["Title"] = "Approvals";
+}
+
+<h1>Pending approvals</h1>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+@if (Model.SuccessMessage is not null)
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Date</th>
+                <th>Hours</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var entry in Model.PendingEntries)
+            {
+                <tr>
+                    <td>@entry.EmployeeName</td>
+                    <td>@entry.WorkDate</td>
+                    <td>@entry.HoursWorked</td>
+                    <td>
+                        <form method="post" asp-page-handler="Approve" style="display:inline;">
+                            <input type="hidden" name="id" value="@entry.Id" />
+                            <input type="hidden" name="expectedVersion" value="@entry.Version" />
+                            <button type="submit" class="btn">Approve</button>
+                        </form>
+                        <form method="post" asp-page-handler="Reject" style="display:inline;">
+                            <input type="hidden" name="id" value="@entry.Id" />
+                            <input type="hidden" name="expectedVersion" value="@entry.Version" />
+                            <input type="text" name="reason" placeholder="Reason" required style="width:140px;display:inline-block;" />
+                            <button type="submit" class="btn btn-danger">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            @if (!Model.PendingEntries.Any())
+            {
+                <tr><td colspan="4" class="text-muted">Nothing waiting on your approval.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
