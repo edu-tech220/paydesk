@@ -49,6 +49,11 @@ builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
 var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
     ?? throw new InvalidOperationException("Jwt configuration section is missing.");
 
+// Without this, the JWT handler silently renames the "sub" claim to
+// ClaimTypes.NameIdentifier on validation, breaking JwtRegisteredClaimNames.Sub
+// lookups (see ClaimsPrincipalExtensions.GetEmployeeId).
+System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
