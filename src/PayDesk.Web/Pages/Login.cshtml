@@ -1,0 +1,47 @@
+@page
+@model PayDesk.Web.Pages.LoginModel
+@{
+    ViewData["Title"] = "Sign in";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Sign in - PayDesk</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <div class="container" style="max-width:420px;margin-top:4rem;">
+        <div class="card">
+            <h1 style="margin-top:0;">PayDesk</h1>
+            <p class="text-muted">Sign in to manage timesheets and payroll.</p>
+
+            @if (Model.ErrorMessage is not null)
+            {
+                <div class="alert alert-danger">@Model.ErrorMessage</div>
+            }
+
+            <form method="post">
+                <div class="form-group">
+                    <label asp-for="Input.Email">Email</label>
+                    <input asp-for="Input.Email" type="email" autocomplete="username" />
+                    <span asp-validation-for="Input.Email" class="text-muted"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Input.Password">Password</label>
+                    <input asp-for="Input.Password" type="password" autocomplete="current-password" />
+                    <span asp-validation-for="Input.Password" class="text-muted"></span>
+                </div>
+                <button type="submit" class="btn">Sign in</button>
+            </form>
+
+            <p class="text-muted" style="margin-top:1.5rem;font-size:0.85rem;">
+                Demo accounts: admin@paydesk.local / Admin123! &middot;
+                manager@paydesk.local / Manager123! &middot;
+                employee@paydesk.local / Employee123!
+            </p>
+        </div>
+    </div>
+</body>
+</html>
