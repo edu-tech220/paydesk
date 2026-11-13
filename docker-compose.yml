@@ -25,7 +25,7 @@ services:
       sqlserver:
         condition: service_healthy
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__PayDeskDb: "Server=sqlserver,1433;Database=PayDeskDb;User Id=sa;Password=Your_strong_password123;TrustServerCertificate=True;"
       Jwt__Issuer: "PayDesk.Api"
       Jwt__Audience: "PayDesk.Clients"
@@ -42,7 +42,7 @@ services:
     depends_on:
       - api
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_ENVIRONMENT: Development
       Api__BaseUrl: "http://api:8080"
     ports:
       - "8081:8080"
