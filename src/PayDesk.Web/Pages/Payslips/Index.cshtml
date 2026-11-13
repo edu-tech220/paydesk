@@ -1,0 +1,47 @@
+@page
+@model PayDesk.Web.Pages.Payslips.IndexModel
+@{
+    ViewData["Title"] = "Payslips";
+}
+
+<h1>Payslips</h1>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Period</th>
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
+                    <th>Employee</th>
+                }
+                <th>Regular</th>
+                <th>Overtime</th>
+                <th>Gross</th>
+                <th>Tax</th>
+                <th>Net</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var slip in Model.Payslips)
+            {
+                <tr>
+                    <td>@slip.PayPeriodStart - @slip.PayPeriodEnd</td>
+                    @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                    {
+                        <td>@slip.EmployeeName</td>
+                    }
+                    <td>@slip.RegularHours h / @slip.RegularPay.ToString("C")</td>
+                    <td>@slip.OvertimeHours h / @slip.OvertimePay.ToString("C")</td>
+                    <td>@slip.GrossPay.ToString("C")</td>
+                    <td>@slip.TaxAmount.ToString("C")</td>
+                    <td><strong>@slip.NetPay.ToString("C")</strong></td>
+                </tr>
+            }
+            @if (!Model.Payslips.Any())
+            {
+                <tr><td colspan="7" class="text-muted">No payslips yet.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,83 @@
+@page
+@model PayDesk.Web.Pages.PayPeriods.IndexModel
+@{
+    ViewData["Title"] = "Pay Periods";
+}
+
+<h1>Pay periods</h1>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+@if (Model.SuccessMessage is not null)
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+
+<div class="card">
+    <h2 style="margin-top:0;font-size:1.1rem;">New pay period</h2>
+    <form method="post" asp-page-handler="Create">
+        <div class="form-group">
+            <label asp-for="Input.StartDate">Start date</label>
+            <input asp-for="Input.StartDate" type="date" />
+        </div>
+        <div class="form-group">
+            <label asp-for="Input.EndDate">End date</label>
+            <input asp-for="Input.EndDate" type="date" />
+        </div>
+        <button type="submit" class="btn">Create</button>
+    </form>
+</div>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Start</th>
+                <th>End</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var period in Model.PayPeriods)
+            {
+                <tr>
+                    <td>@period.StartDate</td>
+                    <td>@period.EndDate</td>
+                    <td><span class="badge badge-@period.Status.ToLowerInvariant()">@period.Status</span></td>
+                    <td>
+                        @if (period.Status == "Open")
+                        {
+                            <form method="post" asp-page-handler="Close" style="display:inline;">
+                                <input type="hidden" name="id" value="@period.Id" />
+                                <input type="hidden" name="expectedVersion" value="@period.Version" />
+                                <button type="submit" class="btn">Close</button>
+                            </form>
+                        }
+                        @if (period.Status == "Closed")
+                        {
+                            <form method="post" asp-page-handler="Process" style="display:inline;">
+                                <input type="hidden" name="id" value="@period.Id" />
+                                <button type="submit" class="btn">Process payroll</button>
+                            </form>
+                        }
+                        @if (period.Status == "Processed")
+                        {
+                            <form method="post" asp-page-handler="MarkPaid" style="display:inline;">
+                                <input type="hidden" name="id" value="@period.Id" />
+                                <input type="hidden" name="expectedVersion" value="@period.Version" />
+                                <button type="submit" class="btn">Mark paid</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+            @if (!Model.PayPeriods.Any())
+            {
+                <tr><td colspan="4" class="text-muted">No pay periods yet.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
