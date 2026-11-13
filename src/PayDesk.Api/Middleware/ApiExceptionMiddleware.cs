@@ -12,11 +12,13 @@ public class ApiExceptionMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<ApiExceptionMiddleware> _logger;
+    private readonly IHostEnvironment _environment;
 
-    public ApiExceptionMiddleware(RequestDelegate next, ILogger<ApiExceptionMiddleware> logger)
+    public ApiExceptionMiddleware(RequestDelegate next, ILogger<ApiExceptionMiddleware> logger, IHostEnvironment environment)
     {
         _next = next;
         _logger = logger;
+        _environment = environment;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -41,11 +43,18 @@ public class ApiExceptionMiddleware
                 _logger.LogError(ex, "Unhandled exception while processing {Method} {Path}", context.Request.Method, context.Request.Path);
             }
 
+            var detail = statusCode switch
+            {
+                StatusCodes.Status500InternalServerError when _environment.IsDevelopment() => ex.ToString(),
+                StatusCodes.Status500InternalServerError => "An unexpected error occurred.",
+                _ => ex.Message
+            };
+
             var problem = new ProblemDetails
             {
                 Status = statusCode,
                 Title = title,
-                Detail = statusCode == StatusCodes.Status500InternalServerError ? "An unexpected error occurred." : ex.Message,
+                Detail = detail,
                 Instance = context.Request.Path
             };
 
