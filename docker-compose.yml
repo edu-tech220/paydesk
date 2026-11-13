@@ -1,0 +1,51 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: paydesk-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Your_strong_password123"
+    ports:
+      - "1433:1433"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    volumes:
+      - paydesk-sqlserver-data:/var/opt/mssql
+
+  api:
+    build:
+      context: .
+      dockerfile: src/PayDesk.Api/Dockerfile
+    container_name: paydesk-api
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__PayDeskDb: "Server=sqlserver,1433;Database=PayDeskDb;User Id=sa;Password=Your_strong_password123;TrustServerCertificate=True;"
+      Jwt__Issuer: "PayDesk.Api"
+      Jwt__Audience: "PayDesk.Clients"
+      Jwt__Key: "dev-only-signing-key-change-me-before-any-real-deployment-32chars"
+      Cors__WebFrontendOrigin: "http://localhost:8081"
+    ports:
+      - "8080:8080"
+
+  web:
+    build:
+      context: .
+      dockerfile: src/PayDesk.Web/Dockerfile
+    container_name: paydesk-web
+    depends_on:
+      - api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Api__BaseUrl: "http://api:8080"
+    ports:
+      - "8081:8080"
+
+volumes:
+  paydesk-sqlserver-data:
